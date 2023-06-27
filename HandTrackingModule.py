@@ -45,6 +45,7 @@ class handDetector:
                 if draw:
                     # 绘制手的线条和关键点
                     # 使用参数更改颜色 landmark_drawing_spec=self.mpDraw.DrawingSpec(color=(255, 255, 160))
+                    # pass
                     self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
                     # self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS,
                     #                            landmark_drawing_spec=self.mpDraw.DrawingSpec(color=(255, 255, 160)))
@@ -104,10 +105,7 @@ class handDetector:
         return fingers
 
 
-    def findDistance(self, p1, p2, img, draw=True, r=15, t=3):
-        """
-        :param 两点坐标，
-        """
+    def findDistance(self, p1, p2, img, draw=True, r=10, t=2):
         x1, y1 = self.lmList[p1][1:]
         x2, y2 = self.lmList[p2][1:]
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
@@ -127,37 +125,37 @@ class handDetector:
         return length, img, [x1, y1, x2, y2, cx, cy]
 
 
-def main():
-    # fps
-    pTime = 0
+# def main():
+#     # fps
+#     pTime = 0
 
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    detector = handDetector()
+#     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+#     detector = handDetector()
 
-    while True:
-        success, img = cap.read()
-        img = cv2.flip(img, 1)
+#     while True:
+#         success, img = cap.read()
+#         img = cv2.flip(img, 1)
 
-        img = detector.findHands(img)
+#         img = detector.findHands(img)
 
-        lmList, bbox= detector.findPosition(img)
+#         lmList, bbox= detector.findPosition(img)
 
-        print(type(lmList))
-        # if len(lmList) != 0:
-        #     print(lmList)
-
-
-        cTime = time.time()
-        fps = 1 // (cTime - pTime)
-        pTime = cTime
-        cv2.putText(img, "FPS: " + str(fps), (10, 50), cv2.FONT_HERSHEY_PLAIN, 3, (132, 21, 200))
-
-        cv2.imshow("Image", img)
-        # cv2.waitKey(1)
-        if cv2.waitKey(1) == 27:  # wait for ESC
-            cv2.destroyAllWindows()
-            break
+#         print(type(lmList))
+#         # if len(lmList) != 0:
+#         #     print(lmList)
 
 
-if __name__ == "__main__":
-    main()
+#         cTime = time.time()
+#         fps = 1 // (cTime - pTime)
+#         pTime = cTime
+#         cv2.putText(img, "FPS: " + str(fps), (10, 50), cv2.FONT_HERSHEY_PLAIN, 3, (132, 21, 200))
+
+#         cv2.imshow("Image", img)
+#         # cv2.waitKey(1)
+#         if cv2.waitKey(1) == 27:  # wait for ESC
+#             cv2.destroyAllWindows()
+#             break
+
+
+# if __name__ == "__main__":
+#     main()
