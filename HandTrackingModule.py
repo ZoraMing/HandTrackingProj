@@ -105,6 +105,9 @@ class handDetector:
 
 
     def findDistance(self, p1, p2, img, draw=True, r=15, t=3):
+        """
+        :param 两点坐标，
+        """
         x1, y1 = self.lmList[p1][1:]
         x2, y2 = self.lmList[p2][1:]
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2

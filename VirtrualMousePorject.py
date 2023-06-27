@@ -6,16 +6,23 @@ import pyautogui as auto
 import HandTrackingModule as htm
 
 
-################# 画面属性
+################
+# 画面属性
 wCam, hCam = 640, 480
+# 参照矩形距离画面边缘距离
 frameR = 100
+# 平滑度 度大，动画慢
+smoothening = 3
 #################
+pTime = 0
+plocX, plocY = 0, 0
+clocX, clocY = 0, 0
+
+
 cap = cv2.VideoCapture(0)
 cap.set(3, wCam)
 cap.set(4, hCam)
 
-
-pTime = 0
 detector = htm.handDetector(maxHands=1)
 
 wScr, hScr = auto.size()
@@ -24,7 +31,7 @@ wScr, hScr = auto.size()
 while True:
     # 1.找到手地标
     success, img = cap.read()
-    # 反转镜头左右
+    # # 反转镜头左右
     img = cv2.flip(img, 1)
 
     img = detector.findHands(img)
@@ -32,37 +39,50 @@ while True:
 
     # 2.找到食指和中指
     if len(lmList) != 0:
-        x1, y1 = lmList[8][1:]
-        x2, y2 = lmList[12][1:]
-        # print(x1, x2, y1, y2)
+        # 检测手指点关键点标号
+        mpeFingerNo1 = 8
+        mpeFingerNo2 = 12
+        finger_x1, finger_y1 = lmList[mpeFingerNo1][1:]
+        finger_x2, finger_y2 = lmList[mpeFingerNo2][1:]
+        # print(finger_x1, finger_x2, finger_y1, finger_y2)
 
         # 3.检查竖起的手指
-
         fingers = detector.fingersUp()
         # print(fingers)
-        # 画屏幕范围框
+
+        # 画屏幕范围框 左上角和右下角确定大小
         cv2.rectangle(img, (frameR, frameR), (wCam - frameR, hCam - frameR), (255, 0, 255), 2)
+
+
         # 4.只有食指竖起时：移动模式
         if fingers[1] == 1 and fingers[2] == 0:
-            # 5.转换坐标;
-            x3 = np.interp(x1, (frameR, wCam-frameR), (0, wScr))
-            y3 = np.interp(y1, (frameR, hCam-frameR), (0, hScr))
+            # 5.转换坐标 将屏幕映射到框中
+            tansl_X = np.interp(finger_x1, (frameR, wCam-frameR), (0, wScr))
+            tansl_Y = np.interp(finger_y1, (frameR, hCam-frameR), (0, hScr))
 
-            # 6.平滑值
+            # 6.平滑值 smoothening越大移动动画越慢
+            clocX = plocX + (tansl_X - plocX) / smoothening
+            clocY = plocY + (tansl_Y - plocY) / smoothening
             # 7.移动鼠标
 
-            auto.moveTo(x3, y3)
-            cv2.circle(img, (x1, y1), 15, (255, 0, 0), cv2.FILLED)
+            auto.moveTo( clocX, clocY)
+
+            # auto.moveTo( tansl_X, tansl_Y)
+
+            cv2.circle(img, (finger_x1, finger_y1), 15, (255, 0, 0), cv2.FILLED)
+            plocX, plocY = clocX, clocY
+
 
         # 8.食指和中指都竖起时：点击模式
         if fingers[1] ==1 and fingers[2] == 1:
-            length, img, _ = detector.findDistance(8, 12, img)
-            # print(length)
-            # if length < 40:
-            #     cv2.circle(img, ())
-
         # 9.找两指距离
+            length, img, lineInfo = detector.findDistance(mpeFingerNo1, mpeFingerNo2, img)
+            # print(length)
         # 1o.距离最短时检查鼠标
+            if length < 40:
+                cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
+                auto.click(button='left')
+
         # 11.帧率
     cTime = time.time()
 
