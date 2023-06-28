@@ -32,6 +32,7 @@ class handDetector:
     def findHands(self, img, draw=True):
         # 转化cv2的BGR色彩模式为mediapipe的RGB模式
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         """
         # 检测手返回创建的hands对象的属性
         # multi_hand_landmarks          ：每个手
@@ -40,16 +41,19 @@ class handDetector:
         """
         self.results = self.hands.process(imgRGB)
 
+
         if self.results.multi_hand_landmarks:
             for handLms in self.results.multi_hand_landmarks:
                 if draw:
                     # 绘制手的线条和关键点
                     # 使用参数更改颜色 landmark_drawing_spec=self.mpDraw.DrawingSpec(color=(255, 255, 160))
-                    # pass
-                    self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
-                    # self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS,
-                    #                            landmark_drawing_spec=self.mpDraw.DrawingSpec(color=(255, 255, 160)))
+                    # self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
+                    self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS,
+                                               landmark_drawing_spec=self.mpDraw.DrawingSpec(color=(255, 255, 160)))
 
+            
+            # if self.results.multi_handedness[0].classification[0].label == 'Right':
+            #     print("RIGHT!!!!!!")            
         return img
 
     def findPosition(self, img, handNo=0, draw=True):
@@ -100,8 +104,6 @@ class handDetector:
             else:
                 fingers.append(0)
 
-        # totalFingers = fingers.count(1)
-
         return fingers
 
 
@@ -118,7 +120,6 @@ class handDetector:
             cv2.circle(img, (cx, cy), r, (43, 45, 48), cv2.FILLED)
 
         length = math.hypot(x2 - x1, y2 - y1)
-        
         
         # print(x1, y1, x2, y2, cx, cy, length)
         
@@ -137,18 +138,23 @@ class handDetector:
 #         img = cv2.flip(img, 1)
 
 #         img = detector.findHands(img)
+#         # img, handedness = detector.findHands(img)
+#         # print(handedness)
 
+#         # print(detector.results.multi_handedness[0].classification[0].label)
 #         lmList, bbox= detector.findPosition(img)
+#         # if handedness.label == 'Right':
+#         #         print("RIGHT!!!!!!")
 
-#         print(type(lmList))
+#         # print(type(lmList))
 #         # if len(lmList) != 0:
 #         #     print(lmList)
 
 
-#         cTime = time.time()
-#         fps = 1 // (cTime - pTime)
-#         pTime = cTime
-#         cv2.putText(img, "FPS: " + str(fps), (10, 50), cv2.FONT_HERSHEY_PLAIN, 3, (132, 21, 200))
+#         # cTime = time.time()
+#         # fps = 1 // (cTime - pTime)
+#         # pTime = cTime
+#         # cv2.putText(img, "FPS: " + str(fps), (10, 50), cv2.FONT_HERSHEY_PLAIN, 3, (132, 21, 200))
 
 #         cv2.imshow("Image", img)
 #         # cv2.waitKey(1)
